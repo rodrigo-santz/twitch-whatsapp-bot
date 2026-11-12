@@ -6,12 +6,18 @@ export function normalizeLogins(raw) {
   return list;
 }
 
+
 export function buildMessage(stream) {
   const channel = stream.user_login;
-  const game = stream.game_name || 'Categoria não informada';
-  const title = stream.title || 'Live iniciada';
-  return `🔴 *LIVE ON — ${stream.user_name || channel}*\n\n🎮 *Categoria:* ${game}\n📣 *Título:* ${title}\n🔗 https://www.twitch.tv/${encodeURIComponent(channel)}\n\nBora fortalecer a comunidade!`;
+  const name = stream.user_name || channel;
+
+  return `🔴 *LIVE ON - ${name}*
+
+https://www.twitch.tv/${encodeURIComponent(channel)}
+
+Bora fortalecer a comunidade!`;
 }
+
 
 // Retorna os avisos apenas para transmissões ainda não notificadas e o novo estado.
 export function calculateAlerts(previousState, streams, monitored) {
