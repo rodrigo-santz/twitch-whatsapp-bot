@@ -52,6 +52,14 @@ async function sendWhatsApp(stream) {
 
 const previousState = JSON.parse(await readFile(stateFile, 'utf8'));
 const streams = await twitchStreams(await twitchToken());
+console.log('Canais cadastrados:', logins.join(', '));
+
+console.log('Canais ao vivo encontrados pela Twitch:');
+for (const stream of streams) {
+  console.log(
+    `- ${stream.user_login} | Início: ${stream.started_at} | ID: ${stream.id}`
+  );
+}
 const {alerts, nextState} = calculateAlerts(previousState, streams, logins);
 console.log(`Canais: ${logins.length}. Ao vivo: ${streams.length}. Novas transmissões: ${alerts.length}.`);
 if (!enabled) {
