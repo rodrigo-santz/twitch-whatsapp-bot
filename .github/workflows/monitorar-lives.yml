@@ -1,0 +1,51 @@
+name: Monitorar lives Twitch -> WhatsApp
+
+on:
+  schedule:
+    # A cada cinco minutos, evitando o primeiro minuto de cada hora
+    - cron: '2/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: twitch-whatsapp-monitor
+  cancel-in-progress: false
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Testar lógica
+        run: npm test
+      - name: Consultar Twitch e avisar WhatsApp
+        run: npm start
+        env:
+          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+          GREEN_API_URL: ${{ secrets.GREEN_API_URL }}
+          GREEN_API_ID_INSTANCE: ${{ secrets.GREEN_API_ID_INSTANCE }}
+          GREEN_API_TOKEN_INSTANCE: ${{ secrets.GREEN_API_TOKEN_INSTANCE }}
+          WHATSAPP_GROUP_ID: ${{ secrets.WHATSAPP_GROUP_ID }}
+          ENABLE_SEND: ${{ vars.ENABLE_SEND }}
+      - name: Salvar controle de lives já avisadas
+        run: |
+          if git diff --quiet -- .state/live_state.json; then
+            echo 'Nenhuma alteração de estado.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .state/live_state.json
+          git commit -m 'chore: atualizar lives notificadas [skip ci]'
+          git push

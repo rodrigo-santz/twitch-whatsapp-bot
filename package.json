@@ -1,0 +1,12 @@
+{
+  "name": "twitch-whatsapp-github",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Avisos de live na Twitch para um grupo do WhatsApp via GitHub Actions + GREEN-API",
+  "scripts": {
+    "start": "node src/index.mjs",
+    "test": "node --test"
+  },
+  "engines": {"node": ">=20"}
+}
