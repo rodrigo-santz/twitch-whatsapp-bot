@@ -1,5 +1,6 @@
 name: Monitorar lives Twitch -> WhatsApp
 
+# Monitoramento automatico Twitch
 on:
   schedule:
     - cron: '3-59/5 * * * *'
