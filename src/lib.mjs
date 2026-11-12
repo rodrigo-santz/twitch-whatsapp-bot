@@ -15,9 +15,7 @@ export function buildMessage(stream) {
 
 https://www.twitch.tv/${encodeURIComponent(channel)}
 
-Bora fortalecer a comunidade!
-
-@todos`;
+Bora fortalecer a comunidade!`;
 }
 
 
