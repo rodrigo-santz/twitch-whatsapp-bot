@@ -19,9 +19,11 @@ Bora fortalecer a comunidade!`;
 }
 
 
-// Retorna os avisos apenas para transmissões ainda não notificadas e o novo estado.
-export function calculateAlerts(previousState, streams, monitored) {
+// Um aviso por streamer a cada 60 minutos, mesmo quando a live cai e volta.
+export const ALERT_COOLDOWN_MS = 60 * 60 * 1000;
+export function calculateAlerts(previousState, streams, monitored, nowMs = Date.now()) {
   const active = new Map(streams.map(s => [s.user_login.toLowerCase(), s]));
+  const lastSentAt = previousState.__lastAlertAt || {};
   const nextState = {};
   const alerts = [];
   for (const login of monitored) {
@@ -29,7 +31,10 @@ export function calculateAlerts(previousState, streams, monitored) {
     if (!live) continue;
     const id = String(live.id);
     nextState[login] = id;
-    if (previousState[login] !== id) alerts.push(live);
+
+    const last = Number(lastSentAt[login]) || 0;
+    const withinCooldown = last > 0 && nowMs - last < ALERT_COOLDOWN_MS;
+    if (previousState[login] !== id && !withinCooldown) alerts.push(live);
   }
   return {alerts, nextState};
 }

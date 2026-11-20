@@ -69,14 +69,18 @@ if (!enabled) {
 }
 
 // Salva o estado depois de cada envio bem-sucedido para minimizar reenvios em caso de falha parcial.
-const working = {...previousState};
+const working = {...previousState, __lastAlertAt: {...(previousState.__lastAlertAt || {})}};
+const alertLogins = new Set(alerts.map(s => s.user_login.toLowerCase()));
 for (const login of logins) {
   if (!nextState[login]) delete working[login]; // canal atualmente offline
+  else if (!alertLogins.has(login)) working[login] = nextState[login]; // memoriza reconexão sem novo aviso
 }
 await writeFile(stateFile, JSON.stringify(working, null, 2) + '\n');
 for (const stream of alerts) {
   await sendWhatsApp(stream);
-  working[stream.user_login.toLowerCase()] = String(stream.id);
+  const login = stream.user_login.toLowerCase();
+  working[login] = String(stream.id);
+  working.__lastAlertAt[login] = Date.now();
   await writeFile(stateFile, JSON.stringify(working, null, 2) + '\n');
   console.log(`Aviso enfileirado: ${stream.user_login}`);
 }
