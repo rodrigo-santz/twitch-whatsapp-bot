@@ -18,7 +18,10 @@ if (enabled && !/^[-0-9]+@g\.us$/.test(env.WHATSAPP_GROUP_ID || '')) {
 
 async function request(url, options = {}) {
   const response = await fetch(url, {signal: AbortSignal.timeout(20000), ...options});
-  if (!response.ok) throw new Error(`Erro HTTP ${response.status} na integração externa.`);
+  if (!response.ok) {
+  const detalhe = await response.text();
+  throw new Error(`Erro HTTP ${response.status}: ${detalhe}`);
+}
   return response.json();
 }
 
